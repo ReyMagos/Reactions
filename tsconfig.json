@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "module": "es6",
+    "target": "es5",
+    "jsx": "react-jsx",
+    "sourceMap": true,
+
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "noImplicitAny": true
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}
