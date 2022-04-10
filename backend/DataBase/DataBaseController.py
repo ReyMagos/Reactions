@@ -1,6 +1,6 @@
-from DataBase.User import User
-from DataBase.Review import Review
-from DataBase import db_session
+from backend.DataBase.User import User
+from backend.DataBase.Review import Review
+from backend.DataBase import db_session
 
 
 class Controller:
