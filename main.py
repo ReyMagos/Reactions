@@ -1,8 +1,8 @@
 from flask import Flask
 from flask_login import LoginManager, login_required
 from werkzeug.utils import redirect
-from DataBase.User import User
-from DataBase import db_session
+from backend.DataBase.User import User
+from backend.DataBase import db_session
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'review14354fdggkdfgk'
