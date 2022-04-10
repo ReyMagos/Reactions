@@ -1,7 +1,12 @@
 module.exports = {
-  content: [],
+  content: ["./frontend/**/*.{js,jsx,ts,tsx}"],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        "primary": "#2392a1",
+      }
+    }
   },
+  variants: {},
   plugins: [],
-}
+};

@@ -1,4 +1,4 @@
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 const path = require("path");
 
 const SOURCES_PATH = "frontend";
@@ -18,11 +18,16 @@ module.exports = {
                 exclude: /node_modules/,
             },
             {
-                test: /\.less$/i,
+                test: /\.css$/,
                 use: [
-                    "style-loader",
-                    "css-loader",
-                    "less-loader",
+                    { loader: "style-loader" },
+                    {
+                        loader: "css-loader",
+                        options: {
+                            importLoaders: 1
+                        }
+                    },
+                    { loader: "postcss-loader" }
                 ],
                 exclude: /node_modules/,
             },
@@ -44,7 +49,7 @@ module.exports = {
                             path.join("node_modules", "react"),
                             path.join("node_modules", "react"),
                             path.join("node_modules", "scheduler"),
-                            path.join("src", "core"),
+                            path.join(SOURCES_PATH, "core"),
                         ]
 
                         for (let md of common_modules) {
@@ -60,7 +65,7 @@ module.exports = {
                 }
             }
         },
-        runtimeChunk: "single",
+        runtimeChunk: "single"
     },
     plugins: [
         new HtmlWebpackPlugin({
