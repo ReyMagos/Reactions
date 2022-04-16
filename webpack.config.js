@@ -10,6 +10,11 @@ module.exports = {
         account: `./${SOURCES_PATH}/account/index.tsx`,
     },
     devtool: "inline-source-map",
+    devServer: {
+        port: 4200,
+        static: "./dist",
+        hot: true,
+    },
     module: {
         rules: [
             {
@@ -70,6 +75,6 @@ module.exports = {
     plugins: [
         new HtmlWebpackPlugin({
             chunks: ["index"]
-        })
+        }),
     ],
 };
