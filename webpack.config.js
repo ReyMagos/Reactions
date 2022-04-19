@@ -7,7 +7,6 @@ module.exports = {
     mode: "development",
     entry: {
         index: `./${SOURCES_PATH}/index.tsx`,
-        account: `./${SOURCES_PATH}/account/index.tsx`,
     },
     devtool: "inline-source-map",
     devServer: {
@@ -18,28 +17,41 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.tsx?$/,
+                test: /\.(ts|tsx)?$/i,
                 use: "ts-loader",
                 exclude: /node_modules/,
             },
             {
-                test: /\.css$/,
-                use: [
-                    { loader: "style-loader" },
-                    {
-                        loader: "css-loader",
-                        options: {
-                            importLoaders: 1
-                        }
-                    },
-                    { loader: "postcss-loader" }
-                ],
+                test: /\.css$/i,
+                use: ["style-loader", "css-loader", "postcss-loader"],
                 exclude: /node_modules/,
+            },
+            {
+                test: /\.ttf$/i,
+                type: "asset/resource",
+            },
+            {
+                test: /\.(png|jpg|jpeg|gif)$/i,
+                type: "asset/resource",
+            },
+            {
+                test: /\.svg$/i,
+                use: [
+                    {
+                        loader: "@svgr/webpack",
+                        options: {
+                            typescript: true,
+                        }
+                    }
+                ],
             },
         ],
     },
     resolve: {
         extensions: [".tsx", ".ts", ".js"],
+        alias: {
+            Core: path.resolve(__dirname, `${SOURCES_PATH}/core`),
+        }
     },
     output: {
         filename: "[name].bundle.js",

@@ -1,48 +1,69 @@
 import React from "react"
-import ReactDOM from "react-dom"
+import ReactDOM from "react-dom/client"
 
-import Core from "./core/Core"
+import * as Core from "./Core/Widgets"
 
 import "./index.css"
+import {AuthWidget} from "./Core/Widgets";
 
-namespace Reactions {
-    export const Header = () => {
+const Header = (props: { app: any }) => {
+    return (
+        <header className="flex flex-col justify-center items-center">
+            <div className="flex flex-row justify-between w-2/3 h-11">
+                <h1 className="text-2xl">
+                    Reactions
+                </h1>
+                <div className="flex items-center space-x-2">
+                    <Core.Button className="p-0.5"
+                                 onClick={() => { props.app.setModalActive("auth", true) }}>Sign in</Core.Button>
+                    <Core.Button className="p-0.5">Register</Core.Button>
+                </div>
+            </div>
+            <div className="w-2/3">
+                <Core.TextInput className="w-full p-1" placeholder="Search for films" />
+            </div>
+            <div className="w-1/2 mt-2">
+                <p className="text-lg text-center leading-tight">
+                    This is not a real project. Only your imagination can bring it to the real world
+                </p>
+            </div>
+        </header>
+    )
+}
+
+class App extends React.Component<any, any> {
+    constructor(props: any) {
+        super(props);
+
+        this.setModalActive.bind(this)
+        this.state = {
+            modals: {
+                "auth": false
+            }
+        }
+    }
+
+    setModalActive(modal: string, state: boolean) {
+        this.setState({
+            modals: { "auth": state }
+        })
+    }
+
+    render() {
         return (
-            <header className="flex items-center justify-center space-x-16 bg-black text-white">
-                <div className="header-row1">
-                    <h1 className="text-3xl text-primary">Reactions</h1>
-                </div>
-                <div className="header-row2 flex flex-col space-y-4 w-1/4">
-                    <p className="text-sm text-center leading-tight">
-                        This is not a real project. Only your imagination can bring it to the real world
-                    </p>
-                    <div className="space-y-1">
-                        <p className="text-md text-center">
-                            Enlarge your sense
-                        </p>
-                        <div className="flex justify-center space-x-1">
-                            <Core.Button className="text-sm w-full" text="Sign in" />
-                            <Core.Button className="text-sm w-full" text="Register" />
-                        </div>
-                    </div>
-                </div>
-            </header>
+            <div>
+                <Header app={this} />
+                <AuthWidget active={this.state.modals["auth"]}
+                            close={() => { this.setModalActive("auth", false) }} />
+            </div>
         )
     }
 }
 
-const mainView = () => {
-    return (
-        <div>
-            <Reactions.Header />
-            <div id="content">
 
-            </div>
-        </div>
-    )
-}
-
-ReactDOM.render(
-    <React.StrictMode>{mainView()}</React.StrictMode>,
-    document.getElementsByTagName("body")[0]
+const root = ReactDOM.createRoot(document.getElementsByTagName("body")[0]);
+root.render(
+    <React.StrictMode>
+        <App />
+    </React.StrictMode>
 )

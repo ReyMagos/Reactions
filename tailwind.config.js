@@ -12,16 +12,23 @@ module.exports = {
       "xs-abs": "8px",
       "sm-abs": "16px",
       "md-abs": "32px",
-      "lg-abs": "40px",
-      "xl-abs": "48px",
+      "lg-abs": "38px",
+      "xl-abs": "50px",
 
-      "xs": ".5rem",
-      "sm": ".75rem",
-      "md": "1rem",
-      "lg": "1.25rem",
-      "xl": "1.5rem",
-      "2xl": "2rem",
-      "3xl": "4rem",
+      "xs": "0.8vw",
+      "sm": "1vw",
+      "md": "1.5vw",
+      "lg": "2vw",
+      "xl": "3vw",
+      "2xl": "5vw",
+      "3xl": "10vw",
+      "4xl": "14vw",
+    },
+    minWidth: {
+      "md": "50%",
+    },
+    maxWidth: {
+      "md": "400px",
     },
     extend: {
       colors: {

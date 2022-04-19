@@ -1,54 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+    font-family: "Rubik";
+    font-weight: 400;
+    src: url("./Rubik-Regular.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Rubik";
+    font-weight: 300;
+    src: url("./Rubik-Light.ttf") format("truetype");
+}
+
 html {
     @apply xs:text-xs-abs sm:text-sm-abs md:text-md-abs lg:text-lg-abs xl:text-xl-abs;
+    font-family: "Rubik", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 header {
     height: 100vh;
 
-    .&-row1 {
-        & h1 {
+    h1 {
 
-        }
-
-        & p {
-
-        }
     }
 
-    .&-row2 {
-        & button {
-            position: relative;
+    button {
+        border: 1px solid rgba(188, 188, 183, .50);
+        border-radius: 5px;
+    }
 
-            &::before {
-                content: "";
-                position: absolute;
-                left: -2px;
-                top: -2px;
-                width: calc(100% + 4px);
-                height: calc(100% + 4px);
-
-                border-radius: 0.375rem;
-                background: transparent;
-                box-shadow: 0 1px 2px rgba(35, 146, 161, 0.11),
-                        0 3px 5px rgba(35, 146, 161, 0.153),
-                        0 6px 10px rgba(35, 146, 161, 0.184),
-                        0 10px 18px rgba(35, 146, 161, 0.213),
-                        0 19px 33px rgba(35, 146, 161, 0.253),
-                        0 45px 80px rgba(35, 146, 161, 0.35),
-                        0 1px 2px rgba(35, 146, 161, 0.11) inset,
-                        0 3px 5px rgba(35, 146, 161, 0.153) inset,
-                        0 6px 10px rgba(35, 146, 161, 0.184) inset,
-                        0 10px 18px rgba(35, 146, 161, 0.213) inset,
-                        0 19px 33px rgba(35, 146, 161, 0.253) inset,
-                        0 45px 80px rgba(35, 146, 161, 0.35) inset;
-
-                opacity: 0;
-                transition: opacity 0.3s ease-in-out;
-            }
-
-            &:hover::before {
-                opacity: 1;
-            }
-        }
+    input {
+        box-shadow: 0 1px rgb(188 188 183 / 30%);
+        border: 1px solid rgba(188, 188, 183, .50);
+        border-radius: 5px;
+        outline: none;
     }
 }
