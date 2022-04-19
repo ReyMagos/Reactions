@@ -25,8 +25,8 @@ def register_page():
     return "register"
 
 
-@app.route("/<int::id>", methods=["GET", "POST"])
-def page(user_id):
+@app.route("/<id>", methods=["GET", "POST"])
+def page():
     return "page"
 
 
@@ -49,4 +49,4 @@ def load_user(user_id):
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(port=8080, host='127.0.0.1')
