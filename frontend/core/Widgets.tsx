@@ -1,105 +1,198 @@
-import React, {ButtonHTMLAttributes} from "react";
+import React from "react";
+// @ts-ignore
+import axios from "axios";
+import Close from "./close.svg"
+// @ts-ignore
+import {useForm} from "react-hook-form";
 
 import "./Widgets.css"
 
+
 const MODULE_PREFIX = "reactions"
 
-/*
- *  Simple elements
- */
+class ClassName {
+  static className = []
 
-interface IButtonProps extends ButtonHTMLAttributes<any> {
-    variant?: "success" | "fail" | "regular"
+  static apply(names: string) {
+    if (names != null) {
+      this.className.push(...names.split(" "))
+    }
+    return this
+  }
+
+  static applyWhen(names: string, predicate: boolean) {
+    if (predicate) this.apply(names)
+    return this
+  }
+
+  static asString() {
+    const result = this.className.join(" ")
+    this.className = []
+
+    return result
+  }
 }
 
-export class Button extends React.Component<IButtonProps, {}> {
-    static defaultProps = {
-        variant: "regular",
-    }
-
-    render() {
-        const {variant, className, children, ...restProps} = this.props
-        const styleClass = `${MODULE_PREFIX}-button ${MODULE_PREFIX}-button-${variant}`
-
-        return (
-            <button className={`${styleClass} ${className}`} {...restProps} >{children}</button>
-        )
-    }
+function composeClass(name: string, variant?: string) {
+  if (variant == null)
+    return `${MODULE_PREFIX}-${name}`
+  return `${MODULE_PREFIX}-${name} ${MODULE_PREFIX}-${name}-${variant}`
 }
 
-interface ITextInputProps extends React.HTMLAttributes<HTMLInputElement> {
-    target?: string
-}
+export const ModalWidget = (props: React.PropsWithChildren<{ active: boolean, close: Function }>) => {
+  const [pulsing, setPulsing] = React.useState(false)
 
-export class TextInput extends React.Component<ITextInputProps, any> {
-    static defaultProps = {
-
-    }
-
-    render() {
-        const {className, ...restProps} = this.props
-        const styleClass = `${MODULE_PREFIX}-text-input`
-        return <input className={`${styleClass} ${className}`} type="text" {...restProps} />
-    }
-}
-
-interface ICheckBoxProps extends React.HTMLAttributes<HTMLInputElement> {
-    target: string
-    text? : string | null
-}
-
-export class CheckBox extends React.Component<ICheckBoxProps, any> {
-    static defaultProps = {
-        target: "",
-        text: null as any
-    }
-
-    render() {
-        const {target, text, className, ...restProps} = this.props;
-        const styleClass = `${MODULE_PREFIX}-checkbox`
-
-        return (
-            <div className={`${styleClass} ${className}`}>
-                <input id={target} name={target} type="checkbox" {...restProps} />
-                <label htmlFor={target}>{text != null ? text : target}</label>
-            </div>
-        )
-    }
-}
-
-
-/*
- *  Complex widgets
- */
-
-type AuthProps = {active: boolean, close: Function}
-
-import Close from "./close.svg"
-
-export const AuthWidget = ({active, close}: AuthProps) => {
-    return (
-        <div className={active ? "modal modal-active" : "modal"} onMouseDown={() => { close() }}>
-            <div className="modal-content reactions-widget w-36 p-3 text-gray-300" onMouseDown={event => event.stopPropagation()}>
-                <div className="flex justify-between items-center">
-                    <p className="text-lg">Sign in</p>
-                    <Button className="sh-1 p-0.5 rounded-b-sm flex items-center space-x-1 text-sm font-thin" onClick={() => { close() }} >
-                        {/*<p className="">Close</p>*/}
-                        <Close className="fill-gray-300" width="1.3em" height="1.3em" />
-                    </Button>
-                </div>
-                <div className="flex flex-col items-center space-y-1 mt-2">
-                    <TextInput className="sh w-full p-0.5 rounded-sm outline-none text-md text-black" target="login" placeholder="E-Mail" />
-                    <TextInput className="sh w-full p-0.5 rounded-sm outline-none text-md text-black" target="password" placeholder="Password" />
-                </div>
-                <div className="flex justify-between items-center mt-0.5">
-                    <CheckBox className="text-sm" target="remember" text="Remember me" />
-                    <p className="text-xs">Forgot password?</p>
-                </div>
-                <div className="flex flex-col items-center mt-2 space-y-1">
-                    <Button className="sh w-1/2 rounded-sm" type="submit">Enter</Button>
-                    <p className="text-sm">Don't have an account?</p>
-                </div>
-            </div>
+  return (
+    <div className={
+      ClassName.apply(composeClass("modal", props.active ? "active" : null))
+        .applyWhen(composeClass("pulse-animation"), pulsing)
+        .asString()
+    } onMouseDown={() => setPulsing(true)} onAnimationEnd={() => setPulsing(false)}>
+      <div className={
+        ClassName.apply(composeClass("modal-content"))
+          .apply(composeClass("widget"))
+          .apply("w-36 px-3 pb-3 text-gray-300 overflow-hidden")
+          .asString()
+      } onMouseDown={event => event.stopPropagation()}>
+        <div className="flex w-full justify-end">
+          <button className="close text-md" onClick={() => props.close()}>
+            <Close className="fill-gray-300" width="1.3em" height="1.3em"/>
+          </button>
         </div>
-    );
+        {props.children}
+      </div>
+    </div>
+  );
+}
+
+interface PTextInput extends React.HTMLAttributes<HTMLInputElement> {
+  variant?: string,
+  target?: string
+  dropdown?: React.RefObject<Dropdown>
+}
+
+export const TextInput = (props: PTextInput) => {
+  const {variant="default", target, dropdown, className, ...restProps} = props
+  const dropdownControl: PTextInput = {
+    onFocus: () => dropdown.current.open(),
+    onBlur: () => dropdown.current.close(),
+    onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
+      axios.get("/films", {params: { text: event.target.value }})
+        .then((response) => {
+
+        })
+        .catch((error) => console.log(error))
+      dropdown.current.update()
+    }
+  }
+  return <input className={ClassName.apply(composeClass("text-input", variant)).apply(className).asString()}
+                name={target} type="text" {...dropdownControl} {...restProps} />
+}
+
+interface PCheckbox extends React.HTMLAttributes<HTMLInputElement> {
+  variant?: string,
+  target?: string,
+  text?: string
+}
+
+export const Checkbox = (props: PCheckbox) => {
+  const {variant="default", target, text, className, ...restProps} = props
+  return (
+    <div className={ClassName.apply(composeClass("checkbox", variant)).apply(className).asString()}>
+      <input name={target} type="checkbox" {...restProps} />
+      {text != null && <label htmlFor={target}>{text}</label>}
+    </div>
+  )
+}
+
+interface PDropdown {
+  onSelect?: Function
+}
+
+export class Dropdown extends React.Component<PDropdown, any> {
+  constructor(props: PDropdown) {
+    super(props)
+  }
+
+  open() { console.log("OPEN") }
+  close() { console.log("CLOSE") }
+  update() { console.log("UPDATE") }
+
+  render() {
+    return (
+      <div></div>
+    )
+  }
+}
+
+
+const FormInput = (props) => {
+  const {className, ...restProps} = props
+  return <TextInput className={ClassName.apply("w-full p-0.5").apply(className).asString()}
+                    variant="float" {...restProps} />
+}
+
+export const Auth = (props: { className?: string, app: any }) => {
+  const {register, handleSubmit} =  useForm<FormData>()
+  const sendForm = handleSubmit((data: FormData) => {
+    axios.post("/login", {})
+      .then((response: any) => {
+        console.log(response)
+      })
+      .catch((error: any) => {
+        console.log(error)
+      })
+  })
+
+  return (
+    <div className={props.className}>
+      <form onSubmit={sendForm}>
+        <div>
+          <p className="text-lg">Sign in</p>
+        </div>
+        <div className="flex flex-col items-center space-y-1 mt-2 text-md text-black">
+          <FormInput target="login" placeholder="E-Mail" />
+          <FormInput target="password" placeholder="Password" />
+        </div>
+        <div className="flex justify-between items-center mt-0.5">
+          <Checkbox className="text-xs space-x-0.5" target="remember" text="Remember me"/>
+          <a className="text-xs">Forgot password?</a>
+        </div>
+        <div className="flex flex-col items-center space-y-1 mt-2">
+          <button className="sh text-lg w-1/2 rounded-sm" type="submit">Enter</button>
+          <a className="text-xs" onClick={() => {
+            props.app.setActiveModal(<Register app={props.app}/>)
+          }}>Don't have an account?</a>
+        </div>
+      </form>
+    </div>
+  )
+}
+
+
+export const Register = (props: { className?: string, app: any }) => {
+  return (
+    <div className={props.className}>
+      <div className="flex">
+        <p className="text-lg">Register</p>
+      </div>
+      <div className="flex flex-col items-center space-y-1 mt-2 text-md text-black">
+        <FormInput target="username" placeholder="Username"/>
+        <FormInput target="login" placeholder="E-Mail"/>
+        <FormInput target="password" placeholder="Password"/>
+        <FormInput target="" placeholder="Password Again"/>
+      </div>
+      <div className="flex flex-col items-center mt-2 space-y-1">
+        <button className="sh text-lg w-1/2 rounded-sm" type="submit">Enter</button>
+        <a className="text-xs" onClick={() => {
+          props.app.setActiveModal(<Auth app={props.app}/>)
+        }}>Already have an account?</a>
+      </div>
+    </div>
+  )
+}
+
+
+export const FilmPreview = () => {
+  return <div className={ClassName.apply(composeClass("film-preview")).apply(composeClass("widget")).asString()}></div>
 }

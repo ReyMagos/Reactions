@@ -5,13 +5,13 @@
 @font-face {
     font-family: "Rubik";
     font-weight: 400;
-    src: url("./Rubik-Regular.ttf") format("truetype");
+    src: url("./fonts/Rubik-Regular.ttf") format("truetype");
 }
 
 @font-face {
     font-family: "Rubik";
     font-weight: 300;
-    src: url("./Rubik-Light.ttf") format("truetype");
+    src: url("./fonts/Rubik-Light.ttf") format("truetype");
 }
 
 html {
@@ -20,21 +20,16 @@ html {
 }
 
 header {
-    height: 100vh;
-
-    h1 {
-
-    }
+    height: 90vh;
 
     button {
         border: 1px solid rgba(188, 188, 183, .50);
         border-radius: 5px;
     }
+}
 
-    input {
-        box-shadow: 0 1px rgb(188 188 183 / 30%);
-        border: 1px solid rgba(188, 188, 183, .50);
-        border-radius: 5px;
-        outline: none;
-    }
+a {
+    text-decoration: underline #b2b2b2;
+    text-underline-position: under;
+    cursor: pointer;
 }

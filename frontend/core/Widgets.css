@@ -2,23 +2,54 @@
 @tailwind components;
 @tailwind utilities;
 
+
 .reactions {
-    &-button {
-        &-success {
+    &-text-input {
+        @apply outline-none rounded-sm;
 
+        &-solid {
+            box-shadow: 0 1px rgb(188 188 183 / 30%);
+            border: 1px solid rgba(188, 188, 183, .50);
         }
 
-        &-fail {
-
-        }
-
-        &-regular {
-
+        &-float {
+            box-shadow: 0 3px 8px 1px #252525;
         }
     }
 
-    &-text-input {
+    &-checkbox {
 
+    }
+
+    &-modal {
+        @apply flex justify-center items-center select-none fixed left-0 top-0;
+
+        width: 100vw;
+        height: 100vh;
+
+        background: rgba(0, 0, 0, 0.4);
+        transform: scale(0);
+
+        &-active {
+            transform: scale(1);
+        }
+    }
+
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.05);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    &-pulse-animation {
+        animation-name: pulse;
+        animation-duration: 0.2s;
     }
 
     &-widget {
@@ -37,37 +68,29 @@
         ;
     }
 
-    &-checkbox {
-        @apply space-x-0.5;
+    &-film-preview {
+        width: 50vw;
+        height: 200px;
     }
 }
 
-.modal {
-    width: 100vw;
-    height: 100vh;
-    position: fixed;
-    left: 0;
-    top: 0;
 
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.leave-animation {
+    width: 100%;
+    flex-shrink: 0;
+    margin-right: 10%;
+}
 
-    background: rgba(0, 0, 0, 0.4);
-    transform: scale(0);
+.enter-animation {
+    width: 100%;
+    flex-shrink: 0;
+}
 
-    &-active {
-        transform: scale(1);
-    }
+.close {
+    margin-right: -0.75rem;
 }
 
 .sh {
     box-shadow: 0 3px 8px 1px #252525;
 }
 
-.sh-1 {
-    margin-top: -91px;
-    margin-right: -36px;
-    //box-shadow: 0 3px 3px 1px #252525;
-
-}
