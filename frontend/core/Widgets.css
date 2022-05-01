@@ -72,6 +72,24 @@
         width: 50vw;
         height: 200px;
     }
+
+    &-dropdown {
+        @apply absolute left-0 top-0 w-full bg-white;
+        border: 1px solid rgba(188, 188, 183, .50);
+        border-bottom-left-radius: 5px;
+        border-bottom-right-radius: 5px;
+        border-top: none;
+
+        visibility: hidden;
+
+        &-active {
+            visibility: visible;
+        }
+
+        &-item {
+
+        }
+    }
 }
 
 
@@ -92,5 +110,11 @@
 
 .sh {
     box-shadow: 0 3px 8px 1px #252525;
+}
+
+.dock {
+    border-bottom: none;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
 }
 

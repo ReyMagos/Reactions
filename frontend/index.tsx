@@ -58,7 +58,7 @@ class App extends React.Component<any, any> {
     }
   }
 
-  setActiveModalAnimated(content: JSX.Element) {
+  __setActiveModalAnimated(content: JSX.Element) {
     if (content == null) {
       this.setState({
         prevModal: null,

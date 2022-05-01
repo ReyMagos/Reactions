@@ -66,27 +66,37 @@ export const ModalWidget = (props: React.PropsWithChildren<{ active: boolean, cl
 }
 
 interface PTextInput extends React.HTMLAttributes<HTMLInputElement> {
-  variant?: string,
+  variant?: string
   target?: string
   dropdown?: React.RefObject<Dropdown>
 }
 
 export const TextInput = (props: PTextInput) => {
-  const {variant="default", target, dropdown, className, ...restProps} = props
-  const dropdownControl: PTextInput = {
-    onFocus: () => dropdown.current.open(),
-    onBlur: () => dropdown.current.close(),
-    onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
-      axios.get("/films", {params: { text: event.target.value }})
-        .then((response) => {
+  const [dockToDropdown, setDock] = React.useState(false)
 
-        })
-        .catch((error) => console.log(error))
-      dropdown.current.update()
+  const {variant = "default", target, dropdown, className, ...restProps} = props
+  const dropdownControl: PTextInput = {
+    onFocus: () => {
+      dropdown.current.open()
+      setDock(true)
+    },
+    onBlur: () => {
+      dropdown.current.close()
+      setDock(false)
+    },
+    onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
+      axios.get("/films", {params: {text: event.target.value}})
+        .then(response => dropdown.current.update(response.data.films))
+        .catch(error => console.log(error))
     }
   }
-  return <input className={ClassName.apply(composeClass("text-input", variant)).apply(className).asString()}
-                name={target} type="text" {...dropdownControl} {...restProps} />
+  return <input
+    className={ClassName
+      .apply(composeClass("text-input", variant))
+      .apply(className)
+      .applyWhen("dock", dockToDropdown)
+      .asString()
+    } name={target} type="text" {...dropdownControl} {...restProps} />
 }
 
 interface PCheckbox extends React.HTMLAttributes<HTMLInputElement> {
@@ -96,7 +106,7 @@ interface PCheckbox extends React.HTMLAttributes<HTMLInputElement> {
 }
 
 export const Checkbox = (props: PCheckbox) => {
-  const {variant="default", target, text, className, ...restProps} = props
+  const {variant = "default", target, text, className, ...restProps} = props
   return (
     <div className={ClassName.apply(composeClass("checkbox", variant)).apply(className).asString()}>
       <input name={target} type="checkbox" {...restProps} />
@@ -107,20 +117,46 @@ export const Checkbox = (props: PCheckbox) => {
 
 interface PDropdown {
   onSelect?: Function
+  className?: string
 }
 
 export class Dropdown extends React.Component<PDropdown, any> {
   constructor(props: PDropdown) {
     super(props)
+    this.state = {
+      active: false,
+      items: ["heh", "hehehe", "hahahah"]
+    }
   }
 
-  open() { console.log("OPEN") }
-  close() { console.log("CLOSE") }
-  update() { console.log("UPDATE") }
+  open() {
+    this.setState({active: true})
+  }
+
+  close() {
+    this.setState({active: false})
+  }
+
+  update(items: Array<JSX.Element>) {
+    this.setState({items: items})
+  }
 
   render() {
     return (
-      <div></div>
+      <div className="relative">
+        <div className={
+          ClassName
+          .apply(composeClass("dropdown"))
+          .applyWhen(composeClass("dropdown", "active"), this.state.active)
+          .asString()
+        }>
+          {this.state.items.map(item => (
+            <div>
+              <button className="w-full border-none text-left pl-1 hover:bg-gray-200 rounded-none">{item}</button>
+            </div>
+          ))}
+        </div>
+      </div>
     )
   }
 }
@@ -133,15 +169,13 @@ const FormInput = (props) => {
 }
 
 export const Auth = (props: { className?: string, app: any }) => {
-  const {register, handleSubmit} =  useForm<FormData>()
+  const {register, handleSubmit} = useForm<FormData>()
   const sendForm = handleSubmit((data: FormData) => {
     axios.post("/login", {})
       .then((response: any) => {
         console.log(response)
       })
-      .catch((error: any) => {
-        console.log(error)
-      })
+      .catch((error: any) => console.log(error))
   })
 
   return (
@@ -151,8 +185,8 @@ export const Auth = (props: { className?: string, app: any }) => {
           <p className="text-lg">Sign in</p>
         </div>
         <div className="flex flex-col items-center space-y-1 mt-2 text-md text-black">
-          <FormInput target="login" placeholder="E-Mail" />
-          <FormInput target="password" placeholder="Password" />
+          <FormInput target="login" placeholder="E-Mail"/>
+          <FormInput target="password" placeholder="Password"/>
         </div>
         <div className="flex justify-between items-center mt-0.5">
           <Checkbox className="text-xs space-x-0.5" target="remember" text="Remember me"/>
