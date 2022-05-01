@@ -26,8 +26,8 @@ class Controller:
         self.db_sess.add(user)
         self.db_sess.commit()
 
-    def add_review(self, title, content, creator_id):
-        review = Review(title=title, content=content, creator_id=creator_id)
+    def add_review(self, title, content, creator_id, film):
+        review = Review(title=title, content=content, creator_id=creator_id, film=film)
         user = self.get_user(creator_id)
         user.review.append(review)
         self.db_sess.add(review)
@@ -36,5 +36,8 @@ class Controller:
     def get_user(self, user_id):
         return self.db_sess.query(User).filter(User.id == user_id).first()
 
-    def get_review(self, review_id):
+    def get_user_by_name(self, nickname):
+        return self.db_sess.query(User).filter(User.name == nickname).first()
+
+    def get_review_by_id(self, review_id):
         return self.db_sess.query(Review).filter(Review.id == review_id).first()

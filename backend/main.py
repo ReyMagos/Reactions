@@ -1,51 +1,45 @@
-from flask import Flask
-from flask_login import LoginManager, login_required
+from flask import Flask, jsonify, request, render_template, make_response
 from werkzeug.utils import redirect
 from backend.DataBase.User import User
 from backend.DataBase import db_session
+from backend.DataBase.DataBaseController import Controller
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'review14354fdggkdfgk'
-login_manager = LoginManager()
-login_manager.init_app(app)
+control = Controller()
 
 
 @app.route("/")
 def index():
-    return "sfg"
+    res = make_response(render_template("index.html"))
+    res.set_cookie("was", "True", max_age=60 * 60 * 24 * 365 * 2)
 
 
-@app.route("/login", methods=["GET", "POST"])
+@app.route("/login", methods=["GET"])
 def login_page():
-    return "login"
+    data = request.get_json()
+    user = control.get_user_by_name(data.get('name'))
+    if not user:
+        return jsonify({"status": 401})
+    else:
+        if user.check_password(data['password']):
+            return jsonify({"success": 200, "username": user.name})
 
 
 @app.route("/register", methods=["GET", "POST"])
 def register_page():
-    return "register"
+    if request.method == "POST":
+        data = request.get_json()
+        if data['password'] != data['repeat_password']:
+            return jsonify({"cause": "unmathed_passwords"})
+        if control.get_user_by_name(data.get('name')):
+            return jsonify({"cause": "username_exists"})
+        control.add_User(data['name'], data['surname'], data['about'], data['password'])
+        return jsonify({"username": data['name']})
 
 
-@app.route("/<int::id>", methods=["GET", "POST"])
-def page(user_id):
-    return "page"
-
-
-@app.route("/reviews/<name>", methods=["GET", "POST"])
-def cinema(name):
-    return f'{name}'
-
-
-@app.route('/logout')
-@login_required
-def logout():
-    # logout_user()
-    return redirect("/")
-
-
-@login_manager.user_loader
-def load_user(user_id):
-    db_sess = db_session.create_session()
-    return db_sess.query(User).get(user_id)
+@app.route("/reviews", methods=["GET"])
+def reviews(film):
+    pass
 
 
 if __name__ == "__main__":
