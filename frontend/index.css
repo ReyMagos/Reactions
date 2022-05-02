@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+    font-family: "Rubik";
+    font-weight: 400;
+    src: url("./fonts/Rubik-Regular.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Rubik";
+    font-weight: 300;
+    src: url("./fonts/Rubik-Light.ttf") format("truetype");
+}
+
+html {
+    @apply xs:text-xs-abs sm:text-sm-abs md:text-md-abs lg:text-lg-abs xl:text-xl-abs;
+    font-family: "Rubik", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+header {
+    height: 90vh;
+
+    button {
+        border: 1px solid rgba(188, 188, 183, .50);
+        border-radius: 5px;
+    }
+}
+
+a {
+    text-decoration: underline #b2b2b2;
+    text-underline-position: under;
+    cursor: pointer;
+}

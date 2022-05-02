@@ -21,8 +21,9 @@ class Controller:
             mas.append(review)
         return mas
 
-    def add_User(self, name, surname, about, password):
-        user = User(name=name, surname=surname, about=about, hashed_passowrd=password)
+    def add_User(self, name, login, password):
+        user = User(username=name, login=login)
+        user.set_password(password)
         self.db_sess.add(user)
         self.db_sess.commit()
 
@@ -37,7 +38,13 @@ class Controller:
         return self.db_sess.query(User).filter(User.id == user_id).first()
 
     def get_user_by_name(self, nickname):
-        return self.db_sess.query(User).filter(User.name == nickname).first()
+        return self.db_sess.query(User).filter(User.username == nickname).first()
 
     def get_review_by_id(self, review_id):
         return self.db_sess.query(Review).filter(Review.id == review_id).first()
+
+    def get_review_by_film(self, films):
+        mas = []
+        for review in self.db_sess.query(Review).filter(Review.film == films).all():
+            mas.append(review)
+        return mas
