@@ -169,16 +169,16 @@ const FormInput = (props: any) => {
   return <input className={ClassName.apply("w-full p-0.5").apply(className).asString()} {...restProps} />
 }
 
-type FormData = {
+type AuthFormData = {
   login: string
   password: string
 }
 
 export const Auth = (props: { className?: string, app: any }) => {
-  const { register, handleSubmit } = useForm<FormData>()
-  const sendForm = handleSubmit((data: FormData) => {
+  const { register, handleSubmit } = useForm<AuthFormData>()
+  const sendForm = handleSubmit((data: AuthFormData) => {
     console.log(data)
-    axios.post("/login", { login: data.login, password: data.password })
+    axios.post("/login", { ...data })
       .then((response: any) => console.log(response))
       .catch((error: any) => console.log(error))
   })
@@ -209,24 +209,41 @@ export const Auth = (props: { className?: string, app: any }) => {
 }
 
 
+type RegisterFormData = {
+  username: string
+  login: string
+  password: string
+  repeat_password: string
+}
+
 export const Register = (props: { className?: string, app: any }) => {
+  const { register, handleSubmit } = useForm<RegisterFormData>()
+  const sendForm = handleSubmit((data: RegisterFormData) => {
+    console.log(data)
+    axios.post("/register", { ...data })
+      .then((response: any) => console.log(response))
+      .catch((error: any) => console.log(error))
+  })
+
   return (
     <div className={props.className}>
-      <div className="flex">
-        <p className="text-lg">Register</p>
-      </div>
-      <div className="flex flex-col items-center space-y-1 mt-2 text-md text-black">
-        <FormInput target="username" placeholder="Username"/>
-        <FormInput target="login" placeholder="E-Mail"/>
-        <FormInput target="password" placeholder="Password"/>
-        <FormInput target="" placeholder="Password Again"/>
-      </div>
-      <div className="flex flex-col items-center mt-2 space-y-1">
-        <button className="sh text-lg w-1/2 rounded-sm" type="submit">Enter</button>
-        <a className="text-xs" onClick={() => {
-          props.app.setActiveModal(<Auth app={props.app}/>)
-        }}>Already have an account?</a>
-      </div>
+      <form onSubmit={sendForm}>
+        <div className="flex">
+          <p className="text-lg">Register</p>
+        </div>
+        <div className="flex flex-col items-center space-y-1 mt-2 text-md text-black">
+          <input {...register("username")} className="w-full p-0.5" placeholder="Username"/>
+          <input {...register("login")} className="w-full p-0.5" placeholder="E-Mail"/>
+          <input {...register("password")} className="w-full p-0.5" placeholder="Password"/>
+          <input {...register("repeat_password")} className="w-full p-0.5" placeholder="Password Again"/>
+        </div>
+        <div className="flex flex-col items-center mt-2 space-y-1">
+          <button className="sh text-lg w-1/2 rounded-sm" type="submit">Enter</button>
+          <a className="text-xs" onClick={() => {
+            props.app.setActiveModal(<Auth app={props.app}/>)
+          }}>Already have an account?</a>
+        </div>
+      </form>
     </div>
   )
 }
