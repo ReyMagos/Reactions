@@ -86,10 +86,9 @@ export const TextInput = (props: PTextInput) => {
       setDock(false)
     },
     onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
-      // axios.get("/films", {params: {text: event.target.value}})
-      //   .then(response => dropdown.current.update(response.data.films))
-      //   .catch(error => console.log(error))
-      dropdown.current.update(["1", "2", "3"].map(n => <p>{event.target.value} {n}</p>))
+      axios.get("/films", {params: {text: event.target.value}})
+        .then(response => dropdown.current.update(response.data.films.map(film => <p>{film}</p>)))
+        .catch(error => console.log(error))
     }
   } : null
   return <input
@@ -169,15 +168,13 @@ const FormInput = (props: any) => {
   return <input className={ClassName.apply("w-full p-0.5").apply(className).asString()} {...restProps} />
 }
 
-type AuthFormData = {
-  login: string
-  password: string
-}
-
 export const Auth = (props: { className?: string, app: any }) => {
+  type AuthFormData = {
+    login: string
+    password: string
+  }
   const { register, handleSubmit } = useForm<AuthFormData>()
   const sendForm = handleSubmit((data: AuthFormData) => {
-    console.log(data)
     axios.post("/login", { ...data })
       .then((response: any) => console.log(response))
       .catch((error: any) => console.log(error))
@@ -208,18 +205,15 @@ export const Auth = (props: { className?: string, app: any }) => {
   )
 }
 
-
-type RegisterFormData = {
-  username: string
-  login: string
-  password: string
-  repeat_password: string
-}
-
 export const Register = (props: { className?: string, app: any }) => {
+  type RegisterFormData = {
+    username: string
+    login: string
+    password: string
+    repeat_password: string
+  }
   const { register, handleSubmit } = useForm<RegisterFormData>()
   const sendForm = handleSubmit((data: RegisterFormData) => {
-    console.log(data)
     axios.post("/register", { ...data })
       .then((response: any) => console.log(response))
       .catch((error: any) => console.log(error))
