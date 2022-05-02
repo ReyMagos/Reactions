@@ -86,7 +86,7 @@ export const TextInput = (props: PTextInput) => {
       setDock(false)
     },
     onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
-      axios.get("/films", {params: {text: event.target.value}})
+      axios.get("/films", { data: {text: event.target.value }})
         .then(response => dropdown.current.update(response.data.films.map(film => <p>{film}</p>)))
         .catch(error => console.log(error))
     }
