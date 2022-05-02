@@ -1,8 +1,6 @@
 import React from "react";
-// @ts-ignore
 import axios from "axios";
 import Close from "./close.svg"
-// @ts-ignore
 import {useForm} from "react-hook-form";
 
 import "./Widgets.css"
@@ -33,10 +31,10 @@ class ClassName {
   }
 }
 
-function composeClass(name: string, variant?: string) {
-  if (variant == null)
-    return `${MODULE_PREFIX}-${name}`
-  return `${MODULE_PREFIX}-${name} ${MODULE_PREFIX}-${name}-${variant}`
+function style(name: string, ...variants: string[]) {
+  const className = [`${MODULE_PREFIX}-${name}`]
+  variants.map(variant => className.push(`${MODULE_PREFIX}-${name}-${variant}`))
+  return className.join(" ")
 }
 
 export const ModalWidget = (props: React.PropsWithChildren<{ active: boolean, close: Function }>) => {
@@ -44,17 +42,20 @@ export const ModalWidget = (props: React.PropsWithChildren<{ active: boolean, cl
 
   return (
     <div className={
-      ClassName.apply(composeClass("modal", props.active ? "active" : null))
-        .applyWhen(composeClass("pulse-animation"), pulsing)
+      ClassName
+        .apply(style("modal"))
+        .applyWhen(style("modal", "active"), props.active)
+        .applyWhen(style("pulse-animation"), pulsing)
         .asString()
     } onMouseDown={() => setPulsing(true)} onAnimationEnd={() => setPulsing(false)}>
       <div className={
-        ClassName.apply(composeClass("modal-content"))
-          .apply(composeClass("widget"))
+        ClassName
+          .apply(style("modal-content"))
+          .apply(style("widget"))
           .apply("w-36 px-3 pb-3 text-gray-300 overflow-hidden")
           .asString()
       } onMouseDown={event => event.stopPropagation()}>
-        <div className="flex w-full justify-end">
+        <div className="flex justify-end w-full">
           <button className="close text-md" onClick={() => props.close()}>
             <Close className="fill-gray-300" width="1.3em" height="1.3em"/>
           </button>
@@ -75,7 +76,7 @@ export const TextInput = (props: PTextInput) => {
   const [dockToDropdown, setDock] = React.useState(false)
 
   const {variant = "default", target, dropdown, className, ...restProps} = props
-  const dropdownControl: PTextInput = {
+  const dropdownControl: PTextInput = dropdown ? {
     onFocus: () => {
       dropdown.current.open()
       setDock(true)
@@ -85,18 +86,20 @@ export const TextInput = (props: PTextInput) => {
       setDock(false)
     },
     onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
-      axios.get("/films", {params: {text: event.target.value}})
-        .then(response => dropdown.current.update(response.data.films))
-        .catch(error => console.log(error))
+      // axios.get("/films", {params: {text: event.target.value}})
+      //   .then(response => dropdown.current.update(response.data.films))
+      //   .catch(error => console.log(error))
+      dropdown.current.update(["1", "2", "3"].map(n => <p>{event.target.value} {n}</p>))
     }
-  }
+  } : null
   return <input
-    className={ClassName
-      .apply(composeClass("text-input", variant))
-      .apply(className)
-      .applyWhen("dock", dockToDropdown)
-      .asString()
-    } name={target} type="text" {...dropdownControl} {...restProps} />
+    className={
+      ClassName
+        .apply(style("text-input", variant))
+        .apply(className)
+        .applyWhen("dock", dockToDropdown)
+        .asString()
+    } type="text" {...dropdownControl} {...restProps} />
 }
 
 interface PCheckbox extends React.HTMLAttributes<HTMLInputElement> {
@@ -108,7 +111,7 @@ interface PCheckbox extends React.HTMLAttributes<HTMLInputElement> {
 export const Checkbox = (props: PCheckbox) => {
   const {variant = "default", target, text, className, ...restProps} = props
   return (
-    <div className={ClassName.apply(composeClass("checkbox", variant)).apply(className).asString()}>
+    <div className={ClassName.apply(style("checkbox", variant)).apply(className).asString()}>
       <input name={target} type="checkbox" {...restProps} />
       {text != null && <label htmlFor={target}>{text}</label>}
     </div>
@@ -123,10 +126,7 @@ interface PDropdown {
 export class Dropdown extends React.Component<PDropdown, any> {
   constructor(props: PDropdown) {
     super(props)
-    this.state = {
-      active: false,
-      items: ["heh", "hehehe", "hahahah"]
-    }
+    this.state = {active: false, items: []}
   }
 
   open() {
@@ -137,6 +137,7 @@ export class Dropdown extends React.Component<PDropdown, any> {
     this.setState({active: false})
   }
 
+
   update(items: Array<JSX.Element>) {
     this.setState({items: items})
   }
@@ -146,9 +147,9 @@ export class Dropdown extends React.Component<PDropdown, any> {
       <div className="relative">
         <div className={
           ClassName
-          .apply(composeClass("dropdown"))
-          .applyWhen(composeClass("dropdown", "active"), this.state.active)
-          .asString()
+            .apply(style("dropdown"))
+            .applyWhen(style("dropdown", "active"), this.state.active)
+            .asString()
         }>
           {this.state.items.map(item => (
             <div>
@@ -162,19 +163,23 @@ export class Dropdown extends React.Component<PDropdown, any> {
 }
 
 
-const FormInput = (props) => {
+const FormInput = (props: any) => {
+  console.log(props)
   const {className, ...restProps} = props
-  return <TextInput className={ClassName.apply("w-full p-0.5").apply(className).asString()}
-                    variant="float" {...restProps} />
+  return <input className={ClassName.apply("w-full p-0.5").apply(className).asString()} {...restProps} />
+}
+
+type FormData = {
+  login: string
+  password: string
 }
 
 export const Auth = (props: { className?: string, app: any }) => {
-  const {register, handleSubmit} = useForm<FormData>()
+  const { register, handleSubmit } = useForm<FormData>()
   const sendForm = handleSubmit((data: FormData) => {
-    axios.post("/login", {})
-      .then((response: any) => {
-        console.log(response)
-      })
+    console.log(data)
+    axios.post("/login", { login: data.login, password: data.password })
+      .then((response: any) => console.log(response))
       .catch((error: any) => console.log(error))
   })
 
@@ -185,8 +190,8 @@ export const Auth = (props: { className?: string, app: any }) => {
           <p className="text-lg">Sign in</p>
         </div>
         <div className="flex flex-col items-center space-y-1 mt-2 text-md text-black">
-          <FormInput target="login" placeholder="E-Mail"/>
-          <FormInput target="password" placeholder="Password"/>
+          <input {...register("login")} className="w-full p-0.5" placeholder="E-Mail"/>
+          <input {...register("password")} className="w-full p-0.5" placeholder="Password"/>
         </div>
         <div className="flex justify-between items-center mt-0.5">
           <Checkbox className="text-xs space-x-0.5" target="remember" text="Remember me"/>
@@ -228,5 +233,5 @@ export const Register = (props: { className?: string, app: any }) => {
 
 
 export const FilmPreview = () => {
-  return <div className={ClassName.apply(composeClass("film-preview")).apply(composeClass("widget")).asString()}></div>
+  return <div className={ClassName.apply(style("film-preview")).apply(style("widget")).asString()}></div>
 }
