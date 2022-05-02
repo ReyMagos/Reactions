@@ -1,10 +1,9 @@
-from flask import Flask, jsonify, request, render_template, make_response, send_from_directory
-from werkzeug.utils import redirect
-from backend.DataBase.User import User
-from backend.DataBase import db_session
-from backend.SearchFunc.Searcher import search
-from backend.DataBase.DataBaseController import Controller
 import os
+
+from flask import Flask, jsonify, request, render_template, send_from_directory
+
+from backend.DataBase.DataBaseController import Controller
+from backend.SearchFunc.Searcher import search
 
 control = Controller()
 template_dir = os.path.abspath('/Users/yrikk/PycharmProjects/Reactions/dist')
@@ -24,7 +23,6 @@ def dist(filename):
 @app.route("/login", methods=["GET", "POST"])
 def login_page():
     data = request.get_json()
-    print(data)
     user = control.get_user_by_name(data.get('login'))
     if not user:
         return jsonify({"status": 401}), 401
@@ -37,7 +35,6 @@ def login_page():
 def register_page():
     if request.method == "POST":
         data = request.get_json()
-        print(data)
         if data['password'] != data['repeat_password']:
             return jsonify({"cause": "unmathed_passwords"}), 401
         if control.get_user_by_name(data.get('username')):
@@ -69,7 +66,6 @@ def my_page(user_id):
 @app.route("/films", methods=["POST", "GET"])
 def films():
     data = request.get_json()
-    print(data['text'])
     mas = search(data['text'])
     return jsonify({"films": mas}), 200
 
