@@ -70,7 +70,6 @@
 
     &-film-preview {
         transition: max-height 0.2s linear;
-        width: 50vw;
         max-height: 1000px;
     }
 
@@ -125,14 +124,8 @@
 }
 
 .sh2 {
-    box-shadow:
-        0 4px 5px -10px rgba(0, 0, 0, 0.056) inset,
-        0 10px 11px -10px rgba(0, 0, 0, 0.076) inset,
-        0 19px 21px -10px rgba(0, 0, 0, 0.09) inset,
-        0 34px 38px -10px rgba(0, 0, 0, 0.106) inset,
-        0 64px 71px -10px rgba(0, 0, 0, 0.132) inset,
-        0 153px 170px -10px rgba(0, 0, 0, 0.2) inset
-    ;
+    border: #888888 solid 1px;
+    box-shadow: 0 3px 8px 1px #5e5e5e inset;
 }
 
 .dock {
@@ -143,7 +136,7 @@
 
 .desc {
     transition: max-height 0.5s linear;
-    max-height: 400px;
+    max-height: 600px;
     height: auto;
     overflow: hidden;
 }

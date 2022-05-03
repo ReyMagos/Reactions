@@ -1,4 +1,4 @@
-import React from "react";
+import React, {ReactNode} from "react";
 import axios from "axios";
 import Close from "./close.svg"
 import {useForm, FormProvider, useFormContext} from "react-hook-form";
@@ -102,12 +102,13 @@ export const Checkbox = (props: PCheckbox) => {
 
 interface PDropdown {
   active?: boolean
-  items?: Array<JSX.Element>
+  items?: Array<{id: any, value: JSX.Element}>
   onSelect?: Function
   className?: string
 }
 
 export const Dropdown = (props: PDropdown) => {
+  console.log(props.items)
   return (
     <div className="relative">
       <div className={
@@ -118,8 +119,9 @@ export const Dropdown = (props: PDropdown) => {
           .asString()
       }>
         {props.items.map(item => (
-          <div className="">
-            <button className="w-full border-none text-left pl-1 hover:bg-gray-200 rounded-none">{item}</button>
+          <div>
+            <button className="w-full border-none text-left pl-1 hover:bg-gray-200 rounded-none"
+                    onClick={() => props.onSelect(item.id)}>{item.value}</button>
           </div>
         ))}
       </div>
@@ -219,7 +221,16 @@ export const Register = (props: { className?: string, app: any }) => {
 }
 
 
-export const FilmPreview = (props: any) => {
+export const ReviewText = (props: { text: string, author: string }) => {
+  return (
+    <div className="bg-[#666a7055] rounded-sm p-0.5 font-thin">
+      <p>{props.text} <span className="font-medium bg-[#787878] rounded-sm p-[3px]">{props.author}</span></p>
+    </div>
+  )
+}
+
+
+export const FilmPreview = (props: { children?: ReactNode | undefined }) => {
   const [isExpanded, expand] = React.useState(false)
 
   return (
@@ -227,22 +238,25 @@ export const FilmPreview = (props: any) => {
       ClassName
         .apply(style("film-preview"))
         .apply(style("widget"))
-        .apply("flex flex-col justify-center text-gray-300 p-1")
+        .apply("flex flex-col justify-center text-gray-300 p-1 w-2/3")
         .asString()
     }>
       <div className={
         ClassName
           .apply("flex items-center justify-around")
-          // .applyWhen("justify-around", !isExpanded)
-          // .applyWhen("justify-between", isExpanded)
           .asString()
       }>
         <p className="transition-all">Film Name</p>
         <button className="sh text-lg w-1/4 rounded-sm" onClick={() => expand(!isExpanded)}>Read more</button>
       </div>
-      <div className={ClassName.apply("desc text-sm").applyWhen("collapsed", !isExpanded).asString()}>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-        <textarea className="sh2 text-black p-0.5 w-1/2 h-[100px] rounded-sm resize-none outline-none"></textarea>
+      <div className={ClassName.apply("desc text-sm mt-2 flex flex-col gap-y-1").applyWhen("collapsed", !isExpanded).asString()}>
+        {props.children}
+        <div className="flex flex-col items-center rounded-sm">
+          <textarea className="sh2 text-black p-0.5 w-full h-[100px] rounded-sm resize-none outline-none mt-2"></textarea>
+          <div className="flex justify-center w-full my-1">
+            <button className="sh w-1/4 rounded-sm ml-1">Send review</button>
+          </div>
+        </div>
       </div>
     </div>
   )
