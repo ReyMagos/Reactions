@@ -45,6 +45,6 @@ class Controller:
 
     def get_review_by_film(self, films):
         mas = []
-        for review in self.db_sess.query(Review).filter(Review.film == films).all():
+        for review in self.db_sess.query(Review).filter(Review.id_film == films).all():
             mas.append({"author": review.creator_username, "text": review.content})
         return mas

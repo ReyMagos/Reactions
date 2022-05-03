@@ -84,7 +84,10 @@ def my_page(user_id):
 def films():
     data = request.get_json()
     mas = search(data['text'])
-    return jsonify({"films": mas}), 200
+    ans = []
+    for i in range(len(mas)):
+        ans.append({"name": mas[i][0], "id": mas[i][1]})
+    return jsonify({"films": ans}), 200
 
 
 @app.route("/logout", methods=["POST", "GET"])
