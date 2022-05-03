@@ -6,17 +6,16 @@ from backend.DataBase.DataBaseController import Controller
 from backend.SearchFunc.Searcher import search
 
 control = Controller()
-template_dir = os.path.abspath('/Users/Rey/Reactions/dist')
+template_dir = os.path.abspath('/Users/yrikk/PyCharmProjects//Reactions/dist')
 app = Flask(__name__, template_folder=template_dir)
-# res = make_response(render_template("index.html"))
 
 
 @app.route("/")
 def index():
-    #res.set_cookie("is_authorized", str(False))
-    #res.set_cookie("username", "")
-    #return res
-    return render_template("index.html"), 200
+    res = make_response(render_template("index.html"))
+    res.set_cookie("is_authorized", str(False))
+    res.set_cookie("username", "")
+    return res, 200
 
 
 @app.route("/<path:filename>")
@@ -28,21 +27,23 @@ def dist(filename):
 def login_page():
     data = request.get_json()
     user = control.get_user_by_name(data.get('login'))
+    res = make_response("")
     if not user:
-        return jsonify({"status": 401}), 401
+        return res, 401
     else:
         if user.check_password(data['password']):
-            # res.set_cookie("is_authorized", str(True))
-            # res.set_cookie("username", str(user.username))
-            return jsonify({"username": user.username}), 200
+            res.set_cookie("is_authorized", str(True))
+            res.set_cookie("username", str(user.username))
+            return res, 200
         else:
-            return jsonify({"status": 401}), 401
+            return res, 401
 
 
 @app.route("/register", methods=["POST"])
 def register_page():
     if request.method == "POST":
         data = request.get_json()
+        res = make_response("")
         if data['password'] != data['repeat_password']:
             return jsonify({"cause": "unmathed_passwords"}), 401
         if control.get_user_by_name(data.get('username')):
@@ -53,7 +54,7 @@ def register_page():
         return jsonify({"username": data['username']}), 200
 
 
-@app.route("/<film>", methods=["GET", "POST"])
+@app.route("/reviews/<film>", methods=["GET", "POST"])
 def reviews(film):
     if request.method == "GET":
         data = request.get_json()
@@ -63,7 +64,7 @@ def reviews(film):
         data = request.get_json()
 
 
-@app.route("/<user_id>", methods=["GET", "PUT"])
+@app.route("/my_page/<user_id>", methods=["GET", "PUT"])
 def my_page(user_id):
     if request.method == "GET":
         data = request.get_json()
@@ -78,6 +79,18 @@ def films():
     data = request.get_json()
     mas = search(data['text'])
     return jsonify({"films": mas}), 200
+
+
+@app.route("/logout", methods=["POST", "GET"])
+def logout():
+    data = request.get_json()
+    res = make_response("")
+    if request.cookies.get("is_authorized", "False") == "False":
+        res.set_cookie("is_authorized", str(False))
+        res.set_cookie("username", "")
+        return jsonify({}), 200
+    else:
+        return jsonify({}), 401
 
 
 if __name__ == "__main__":
