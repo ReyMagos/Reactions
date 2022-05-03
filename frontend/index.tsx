@@ -1,14 +1,36 @@
-import React, {ChangeEvent} from "react"
+import React, {ChangeEvent, ReactNode} from "react"
 import ReactDOM from "react-dom/client"
 
-import {Auth, Register, DropdownProvider, TextInput, Dropdown, FilmPreview, ModalWidget, ClassName} from "./Core/Widgets"
+import {
+  Auth,
+  Register,
+  DropdownProvider,
+  TextInput,
+  Dropdown,
+  FilmPreview,
+  ModalWidget,
+  ClassName,
+  ReviewText
+} from "./Core/Widgets"
 
 import "./index.css"
 import axios from "axios";
 
 function loadFilms(inputText: string, updateDropdown: Function) {
   axios.post("/films", {text: inputText})
-    .then(response => { updateDropdown(response.data.films.map(film => <p>{film}</p>)) })
+    .then(response => { console.log(response.data); updateDropdown(response.data.films.map(film => [film.id, <p>{film.name}</p>])) })
+    .catch(error => console.log(error))
+}
+
+function loadReviews(id: any, updateFilms: Function) {
+  axios.get(`/reviews/${id}`)
+    .then(response => {
+      updateFilms(
+        <FilmPreview>
+          {response.data.map((text, author) => <ReviewText text={text} author={author} />)}
+        </FilmPreview>
+      )
+    })
     .catch(error => console.log(error))
 }
 
@@ -37,7 +59,8 @@ const Header = (props: { app: any }) => {
                 <TextInput variant="solid" className={ClassName.apply("w-full p-1").applyWhen("dock sh1", flag).asString()}
                            placeholder="Search for films" onFocus={() => setActive(true)} onBlur={() => setActive(false)}
                            onChange={(event: ChangeEvent<HTMLInputElement>) => loadFilms(event.target.value, updateItems)} />
-                <Dropdown className="sh1 transition-all max-h-[30vh] overflow-y-auto" active={flag} items={items} />
+                <Dropdown className="sh1 transition-all max-h-[30vh] overflow-y-auto"
+                          active={flag} items={items} onSelect={id => loadReviews(id, props.app.updateFilms)} />
               </React.Fragment>
             )
           }}
@@ -56,16 +79,6 @@ const Footer = () => {
   return <footer></footer>
 }
 
-const FilmList = () => {
-  return (
-    <div className="flex flex-col items-center space-y-2">
-      <FilmPreview/>
-      <FilmPreview/>
-      <FilmPreview/>
-    </div>
-  )
-}
-
 class App extends React.Component<any, any> {
   constructor(props: any) {
     super(props);
@@ -73,6 +86,7 @@ class App extends React.Component<any, any> {
     this.setActiveModal.bind(this)
     this.removePrevModal.bind(this)
     this.state = {
+      films: [],
       prevModal: null,
       modal: null
     }
@@ -100,6 +114,12 @@ class App extends React.Component<any, any> {
     this.setState({ prevModal: null })
   }
 
+  updateFilms(films: ReactNode) {
+    this.setState({
+      films: films
+    })
+  }
+
   render() {
     return (
       <React.Fragment>
@@ -107,7 +127,9 @@ class App extends React.Component<any, any> {
           {this.state.modal}
         </ModalWidget>
         <Header app={this}/>
-        <FilmList/>
+        <div className="flex flex-col items-center space-y-2">
+
+        </div>
         <Footer />
       </React.Fragment>
     )
