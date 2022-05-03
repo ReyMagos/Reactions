@@ -69,8 +69,9 @@
     }
 
     &-film-preview {
+        transition: max-height 0.2s linear;
         width: 50vw;
-        height: 200px;
+        max-height: 1000px;
     }
 
     &-dropdown {
@@ -112,9 +113,31 @@
     box-shadow: 0 3px 8px 1px #252525;
 }
 
+.sh1 {
+    box-shadow:
+        0 4px 5px -10px rgba(0, 0, 0, 0.056),
+        0 10px 11px -10px rgba(0, 0, 0, 0.076),
+        0 19px 21px -10px rgba(0, 0, 0, 0.09),
+        0 34px 38px -10px rgba(0, 0, 0, 0.106),
+        0 64px 71px -10px rgba(0, 0, 0, 0.132),
+        0 153px 170px -10px rgba(0, 0, 0, 0.2)
+    ;
+}
+
 .dock {
     border-bottom: none;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
+}
+
+.desc {
+    transition: max-height 0.5s linear;
+    max-height: 500px;
+    overflow: hidden;
+    height: auto;
+}
+
+.desc.collapsed {
+    max-height: 0;
 }
 

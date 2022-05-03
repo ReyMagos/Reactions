@@ -1,19 +1,19 @@
-import React from "react";
+import React, {ChangeEvent, ReactNode} from "react";
 import axios from "axios";
 import Close from "./close.svg"
-import {useForm} from "react-hook-form";
+import {useForm, FormProvider, useFormContext} from "react-hook-form";
 
 import "./Widgets.css"
 
 
 const MODULE_PREFIX = "reactions"
 
-class ClassName {
-  static className = []
+export class ClassName {
+  private static className = new Set<string>()
 
   static apply(names: string) {
     if (names != null) {
-      this.className.push(...names.split(" "))
+      names.split(" ").map(name => this.className.add(name))
     }
     return this
   }
@@ -24,8 +24,8 @@ class ClassName {
   }
 
   static asString() {
-    const result = this.className.join(" ")
-    this.className = []
+    const result = Array.from(this.className).join(" ")
+    this.className.clear()
 
     return result
   }
@@ -69,36 +69,19 @@ export const ModalWidget = (props: React.PropsWithChildren<{ active: boolean, cl
 interface PTextInput extends React.HTMLAttributes<HTMLInputElement> {
   variant?: string
   target?: string
-  dropdown?: React.RefObject<Dropdown>
 }
 
 export const TextInput = (props: PTextInput) => {
-  const [dockToDropdown, setDock] = React.useState(false)
+  const {variant="default", target, className, ...restProps} = props
+  const formProps = target != null ? useFormContext().register(target) : null
 
-  const {variant = "default", target, dropdown, className, ...restProps} = props
-  const dropdownControl: PTextInput = dropdown ? {
-    onFocus: () => {
-      dropdown.current.open()
-      setDock(true)
-    },
-    onBlur: () => {
-      dropdown.current.close()
-      setDock(false)
-    },
-    onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
-      axios.post("/films", { text: event.target.value })
-        .then(response => dropdown.current.update(response.data.films.map(film => <p>{film}</p>)))
-        .catch(error => console.log(error))
-    }
-  } : null
   return <input
     className={
       ClassName
         .apply(style("text-input", variant))
         .apply(className)
-        .applyWhen("dock", dockToDropdown)
         .asString()
-    } type="text" {...dropdownControl} {...restProps} />
+    } type="text" {...formProps} {...restProps} />
 }
 
 interface PCheckbox extends React.HTMLAttributes<HTMLInputElement> {
@@ -118,54 +101,43 @@ export const Checkbox = (props: PCheckbox) => {
 }
 
 interface PDropdown {
+  active?: boolean
+  items?: Array<JSX.Element>
   onSelect?: Function
   className?: string
 }
 
-export class Dropdown extends React.Component<PDropdown, any> {
-  constructor(props: PDropdown) {
-    super(props)
-    this.state = {active: false, items: []}
-  }
-
-  open() {
-    this.setState({active: true})
-  }
-
-  close() {
-    this.setState({active: false})
-  }
-
-
-  update(items: Array<JSX.Element>) {
-    this.setState({items: items})
-  }
-
-  render() {
-    return (
-      <div className="relative">
-        <div className={
-          ClassName
-            .apply(style("dropdown"))
-            .applyWhen(style("dropdown", "active"), this.state.active)
-            .asString()
-        }>
-          {this.state.items.map(item => (
-            <div>
-              <button className="w-full border-none text-left pl-1 hover:bg-gray-200 rounded-none">{item}</button>
-            </div>
-          ))}
-        </div>
+export const Dropdown = (props: PDropdown) => {
+  return (
+    <div className="relative">
+      <div className={
+        ClassName
+          .apply(style("dropdown"))
+          .applyWhen(style("dropdown", "active"), props.active)
+          .apply(props.className)
+          .asString()
+      }>
+        {props.items.map(item => (
+          <div className="">
+            <button className="w-full border-none text-left pl-1 hover:bg-gray-200 rounded-none">{item}</button>
+          </div>
+        ))}
       </div>
-    )
-  }
+    </div>
+  )
 }
 
+export const DropdownProvider = (props: { children: Function }) => {
+  const [active, setActive] = React.useState(false)
+  const [items, updateItems] = React.useState([])
+
+  return props.children(active, setActive, items, updateItems)
+}
 
 const FormInput = (props: any) => {
-  console.log(props)
   const {className, ...restProps} = props
-  return <input className={ClassName.apply("w-full p-0.5").apply(className).asString()} {...restProps} />
+  return <TextInput className={ClassName.apply("w-full p-0.5").apply(className).asString()}
+                    variant="float" {...restProps} />
 }
 
 export const Auth = (props: { className?: string, app: any }) => {
@@ -173,34 +145,36 @@ export const Auth = (props: { className?: string, app: any }) => {
     login: string
     password: string
   }
-  const { register, handleSubmit } = useForm<AuthFormData>()
-  const sendForm = handleSubmit((data: AuthFormData) => {
-    axios.post("/login", { ...data })
+  const formMethods = useForm<AuthFormData>()
+  const sendForm = formMethods.handleSubmit((data: AuthFormData) => {
+    axios.post("/login", {...data})
       .then((response: any) => console.log(response))
       .catch((error: any) => console.log(error))
   })
 
   return (
     <div className={props.className}>
-      <form onSubmit={sendForm}>
-        <div>
-          <p className="text-lg">Sign in</p>
-        </div>
-        <div className="flex flex-col items-center space-y-1 mt-2 text-md text-black">
-          <input {...register("login")} className="w-full p-0.5" placeholder="E-Mail"/>
-          <input {...register("password")} className="w-full p-0.5" placeholder="Password"/>
-        </div>
-        <div className="flex justify-between items-center mt-0.5">
-          <Checkbox className="text-xs space-x-0.5" target="remember" text="Remember me"/>
-          <a className="text-xs">Forgot password?</a>
-        </div>
-        <div className="flex flex-col items-center space-y-1 mt-2">
-          <button className="sh text-lg w-1/2 rounded-sm" type="submit">Enter</button>
-          <a className="text-xs" onClick={() => {
-            props.app.setActiveModal(<Register app={props.app}/>)
-          }}>Don't have an account?</a>
-        </div>
-      </form>
+      <FormProvider {...formMethods}>
+        <form onSubmit={sendForm}>
+          <div>
+            <p className="text-lg">Sign in</p>
+          </div>
+          <div className="flex flex-col items-center space-y-1 mt-2 text-md text-black">
+            <FormInput target="login" placeholder="Username"/>
+            <FormInput target="password" placeholder="Password"/>
+          </div>
+          <div className="flex justify-between items-center mt-0.5">
+            <Checkbox className="text-xs space-x-0.5" text="Remember me"/>
+            <a className="text-xs">Forgot password?</a>
+          </div>
+          <div className="flex flex-col items-center space-y-1 mt-2">
+            <button className="sh text-lg w-1/2 rounded-sm" type="submit">Enter</button>
+            <a className="text-xs" onClick={() => {
+              props.app.setActiveModal(<Register app={props.app}/>)
+            }}>Don't have an account?</a>
+          </div>
+        </form>
+      </FormProvider>
     </div>
   )
 }
@@ -212,37 +186,63 @@ export const Register = (props: { className?: string, app: any }) => {
     password: string
     repeat_password: string
   }
-  const { register, handleSubmit } = useForm<RegisterFormData>()
-  const sendForm = handleSubmit((data: RegisterFormData) => {
-    axios.post("/register", { ...data })
+  const formMethods = useForm<RegisterFormData>()
+  const sendForm = formMethods.handleSubmit((data: RegisterFormData) => {
+    axios.post("/register", {...data})
       .then((response: any) => console.log(response))
       .catch((error: any) => console.log(error))
   })
 
   return (
     <div className={props.className}>
-      <form onSubmit={sendForm}>
-        <div className="flex">
-          <p className="text-lg">Register</p>
-        </div>
-        <div className="flex flex-col items-center space-y-1 mt-2 text-md text-black">
-          <input {...register("username")} className="w-full p-0.5" placeholder="Username"/>
-          <input {...register("login")} className="w-full p-0.5" placeholder="E-Mail"/>
-          <input {...register("password")} className="w-full p-0.5" placeholder="Password"/>
-          <input {...register("repeat_password")} className="w-full p-0.5" placeholder="Password Again"/>
-        </div>
-        <div className="flex flex-col items-center mt-2 space-y-1">
-          <button className="sh text-lg w-1/2 rounded-sm" type="submit">Enter</button>
-          <a className="text-xs" onClick={() => {
-            props.app.setActiveModal(<Auth app={props.app}/>)
-          }}>Already have an account?</a>
-        </div>
-      </form>
+      <FormProvider {...formMethods}>
+        <form onSubmit={sendForm}>
+          <div className="flex">
+            <p className="text-lg">Register</p>
+          </div>
+          <div className="flex flex-col items-center space-y-1 mt-2 text-md text-black">
+            <FormInput target="username" placeholder="Username"/>
+            <FormInput target="login" placeholder="E-Mail"/>
+            <FormInput target="password" placeholder="Password"/>
+            <FormInput target="repeat_password" placeholder="Password Again"/>
+          </div>
+          <div className="flex flex-col items-center mt-2 space-y-1">
+            <button className="sh text-lg w-1/2 rounded-sm" type="submit">Enter</button>
+            <a className="text-xs" onClick={() => {
+              props.app.setActiveModal(<Auth app={props.app}/>)
+            }}>Already have an account?</a>
+          </div>
+        </form>
+      </FormProvider>
     </div>
   )
 }
 
 
-export const FilmPreview = () => {
-  return <div className={ClassName.apply(style("film-preview")).apply(style("widget")).asString()}></div>
+export const FilmPreview = (props: any) => {
+  const [isExpanded, expand] = React.useState(false)
+
+  return (
+    <div className={
+      ClassName
+        .apply(style("film-preview"))
+        .apply(style("widget"))
+        .apply("flex flex-col justify-center text-gray-300 p-1")
+        .asString()
+    }>
+      <div className={
+        ClassName
+          .apply("flex items-center")
+          .applyWhen("justify-around", !isExpanded)
+          .applyWhen("justify-between", isExpanded)
+          .asString()
+      }>
+        <p className="transition-all">Film Name</p>
+        <button className="sh text-lg w-1/4 rounded-sm" onClick={() => expand(!isExpanded)}>Read more</button>
+      </div>
+      <div className={ClassName.apply("desc text-sm").applyWhen("collapsed", !isExpanded).asString()}>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+      </div>
+    </div>
+  )
 }
