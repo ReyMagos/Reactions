@@ -8,26 +8,14 @@ from backend.SearchFunc.Searcher import search
 control = Controller()
 template_dir = os.path.abspath('/Users/yrikk/PyCharmProjects//Reactions/dist')
 app = Flask(__name__, template_folder=template_dir)
-<<<<<<< HEAD
-=======
-with app.app_context():
-    res = make_response(render_template("index.html"))
->>>>>>> a7d494e8be54482725a5fe2b2c080b40d47e028d
 
 
 @app.route("/")
 def index():
-<<<<<<< HEAD
     res = make_response(render_template("index.html"))
     res.set_cookie("is_authorized", str(False))
     res.set_cookie("username", "")
     return res, 200
-=======
-    res.set_cookie("is_authorized", str(False))
-    res.set_cookie("username", "")
-    return res
-    return render_template("index.html"), 200
->>>>>>> a7d494e8be54482725a5fe2b2c080b40d47e028d
 
 
 @app.route("/<path:filename>")
@@ -46,11 +34,7 @@ def login_page():
         if user.check_password(data['password']):
             res.set_cookie("is_authorized", str(True))
             res.set_cookie("username", str(user.username))
-<<<<<<< HEAD
             return res, 200
-=======
-            return jsonify({"username": user.username}), 200
->>>>>>> a7d494e8be54482725a5fe2b2c080b40d47e028d
         else:
             return res, 401
 
@@ -70,26 +54,17 @@ def register_page():
         return jsonify({"username": data['username']}), 200
 
 
-<<<<<<< HEAD
 @app.route("/reviews/<film>", methods=["GET", "POST"])
 def reviews(film):
-=======
-@app.route("/film/<film_id>", methods=["GET", "POST"])
-def reviews(film_id):
->>>>>>> a7d494e8be54482725a5fe2b2c080b40d47e028d
     if request.method == "GET":
         data = request.get_json()
-        review = control.get_review_by_film(film_id)
+        review = control.get_review_by_film(film)
         return jsonify({"reviews": review})
     elif request.method == "POST":
         data = request.get_json()
 
 
-<<<<<<< HEAD
 @app.route("/my_page/<user_id>", methods=["GET", "PUT"])
-=======
-@app.route("/user/<user_id>", methods=["GET", "PUT"])
->>>>>>> a7d494e8be54482725a5fe2b2c080b40d47e028d
 def my_page(user_id):
     if request.method == "GET":
         data = request.get_json()
