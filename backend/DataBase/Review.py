@@ -8,8 +8,7 @@ class Review(SqlAlchemyBase):
     __tablename__ = "reviews"
 
     id = sqlalchemy.Column(sqlalchemy.Integer, autoincrement=True, primary_key=True)
-    title = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     content = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-    film = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-    creator_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("users.id"))
+    id_film = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
+    creator_username = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("users.username"))
     user = orm.relation("User")

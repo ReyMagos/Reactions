@@ -18,7 +18,7 @@ class Controller:
     def get_reviews(self):
         mas = []
         for review in self.db_sess.query(Review).all():
-            mas.append(review)
+            mas.append({"author": review.creator_username, "text": review.content})
         return mas
 
     def add_User(self, name, login, password):
@@ -27,9 +27,9 @@ class Controller:
         self.db_sess.add(user)
         self.db_sess.commit()
 
-    def add_review(self, title, content, creator_id, film):
-        review = Review(title=title, content=content, creator_id=creator_id, film=film)
-        user = self.get_user(creator_id)
+    def add_review(self, content, creator_username, film):
+        review = Review(content=content, creator_username=creator_username, film=film)
+        user = self.get_user(creator_username)
         user.review.append(review)
         self.db_sess.add(review)
         self.db_sess.commit()
@@ -46,5 +46,5 @@ class Controller:
     def get_review_by_film(self, films):
         mas = []
         for review in self.db_sess.query(Review).filter(Review.film == films).all():
-            mas.append(review)
+            mas.append({"author": review.creator_username, "text": review.content})
         return mas

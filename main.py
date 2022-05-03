@@ -27,7 +27,7 @@ def dist(filename):
 def login_page():
     data = request.get_json()
     user = control.get_user_by_name(data.get('login'))
-    res = make_response("")
+    res = make_response()
     if not user:
         return res, 401
     else:
@@ -45,22 +45,28 @@ def register_page():
         data = request.get_json()
         res = make_response("")
         if data['password'] != data['repeat_password']:
-            return jsonify({"cause": "unmathed_passwords"}), 401
+            res.headers["cause"] = "unmathed_password"
+            return res, 401
         if control.get_user_by_name(data.get('username')):
-            return jsonify({"cause": "username_exists"}), 401
+            res.headers["cause"] = "username_exists"
+            return res, 401
         res.set_cookie("is_authorized", str(True))
         res.set_cookie("username", str(data['username']))
         control.add_User(data['username'], data['login'], data['password'])
-        return jsonify({"username": data['username']}), 200
+        return res, 200
 
 
-@app.route("/reviews/<film>", methods=["GET", "POST"])
+@app.route("/reviews/<film>", methods=["GET", "POST", "PUT"])
 def reviews(film):
     if request.method == "GET":
         data = request.get_json()
         review = control.get_review_by_film(film)
-        return jsonify({"reviews": review})
+        return jsonify({"reviews": review}), 200
     elif request.method == "POST":
+        data = request.get_json()
+        control.add_review(data['content'], request.cookies.get("username"), film)
+        return jsonify({}), 200
+    elif request.method == "PUT":
         data = request.get_json()
 
 
@@ -85,12 +91,12 @@ def films():
 def logout():
     data = request.get_json()
     res = make_response("")
-    if request.cookies.get("is_authorized", "False") == "False":
+    if request.cookies.get("is_authorized", "False") == "True":
         res.set_cookie("is_authorized", str(False))
         res.set_cookie("username", "")
-        return jsonify({}), 200
+        return res, 200
     else:
-        return jsonify({}), 401
+        return res, 401
 
 
 if __name__ == "__main__":
