@@ -1,4 +1,4 @@
-import React, {ChangeEvent, ReactNode} from "react";
+import React from "react";
 import axios from "axios";
 import Close from "./close.svg"
 import {useForm, FormProvider, useFormContext} from "react-hook-form";
@@ -232,9 +232,9 @@ export const FilmPreview = (props: any) => {
     }>
       <div className={
         ClassName
-          .apply("flex items-center")
-          .applyWhen("justify-around", !isExpanded)
-          .applyWhen("justify-between", isExpanded)
+          .apply("flex items-center justify-around")
+          // .applyWhen("justify-around", !isExpanded)
+          // .applyWhen("justify-between", isExpanded)
           .asString()
       }>
         <p className="transition-all">Film Name</p>
@@ -242,6 +242,7 @@ export const FilmPreview = (props: any) => {
       </div>
       <div className={ClassName.apply("desc text-sm").applyWhen("collapsed", !isExpanded).asString()}>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+        <textarea className="sh2 text-black p-0.5 w-1/2 h-[100px] rounded-sm resize-none outline-none"></textarea>
       </div>
     </div>
   )
