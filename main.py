@@ -6,7 +6,7 @@ from backend.DataBase.DataBaseController import Controller
 from backend.SearchFunc.Searcher import search
 
 control = Controller()
-template_dir = os.path.abspath('/Users/Rey/Reactions/dist')
+template_dir = os.path.abspath('/Users/yrikk/PyCharmProjects//Reactions/dist')
 app = Flask(__name__, template_folder=template_dir)
 
 
@@ -86,13 +86,8 @@ def films():
     mas = search(data['text'])
     ans = []
     for i in range(len(mas)):
-<<<<<<< HEAD
         ans.append({"name": mas[i][0], "id": mas[i][1]})
     return jsonify({"films": ans}), 200
-=======
-        ans.append({"name": mas[0], "id": mas[1]})
-    return jsonify({"films": mas}), 200
->>>>>>> 9f21c54aa6b51db33194c13b0f61d7fe742ae333
 
 
 @app.route("/logout", methods=["POST", "GET"])
