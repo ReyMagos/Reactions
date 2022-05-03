@@ -31,9 +31,7 @@ module.exports = {
       "md": "400px",
     },
     extend: {
-      colors: {
-        "primary": "#2392a1",
-      },
+
     }
   },
   variants: {},

@@ -6,7 +6,7 @@ from backend.DataBase.DataBaseController import Controller
 from backend.SearchFunc.Searcher import search
 
 control = Controller()
-template_dir = os.path.abspath('/Users/yrikk/PycharmProjects/Reactions/dist')
+template_dir = os.path.abspath('/Users/Rey/Reactions/dist')
 app = Flask(__name__, template_folder=template_dir)
 # res = make_response(render_template("index.html"))
 
@@ -19,7 +19,7 @@ def index():
     return render_template("index.html"), 200
 
 
-@app.route('/<path:filename>')
+@app.route("/<path:filename>")
 def dist(filename):
     return send_from_directory("dist", filename)
 
