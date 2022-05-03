@@ -124,6 +124,17 @@
     ;
 }
 
+.sh2 {
+    box-shadow:
+        0 4px 5px -10px rgba(0, 0, 0, 0.056) inset,
+        0 10px 11px -10px rgba(0, 0, 0, 0.076) inset,
+        0 19px 21px -10px rgba(0, 0, 0, 0.09) inset,
+        0 34px 38px -10px rgba(0, 0, 0, 0.106) inset,
+        0 64px 71px -10px rgba(0, 0, 0, 0.132) inset,
+        0 153px 170px -10px rgba(0, 0, 0, 0.2) inset
+    ;
+}
+
 .dock {
     border-bottom: none;
     border-bottom-left-radius: 0;
@@ -132,9 +143,9 @@
 
 .desc {
     transition: max-height 0.5s linear;
-    max-height: 500px;
-    overflow: hidden;
+    max-height: 400px;
     height: auto;
+    overflow: hidden;
 }
 
 .desc.collapsed {

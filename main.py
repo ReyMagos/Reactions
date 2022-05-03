@@ -8,14 +8,15 @@ from backend.SearchFunc.Searcher import search
 control = Controller()
 template_dir = os.path.abspath('/Users/Rey/Reactions/dist')
 app = Flask(__name__, template_folder=template_dir)
-# res = make_response(render_template("index.html"))
+with app.app_context():
+    res = make_response(render_template("index.html"))
 
 
 @app.route("/")
 def index():
-    #res.set_cookie("is_authorized", str(False))
-    #res.set_cookie("username", "")
-    #return res
+    res.set_cookie("is_authorized", str(False))
+    res.set_cookie("username", "")
+    return res
     return render_template("index.html"), 200
 
 
@@ -32,8 +33,8 @@ def login_page():
         return jsonify({"status": 401}), 401
     else:
         if user.check_password(data['password']):
-            # res.set_cookie("is_authorized", str(True))
-            # res.set_cookie("username", str(user.username))
+            res.set_cookie("is_authorized", str(True))
+            res.set_cookie("username", str(user.username))
             return jsonify({"username": user.username}), 200
         else:
             return jsonify({"status": 401}), 401
@@ -53,17 +54,17 @@ def register_page():
         return jsonify({"username": data['username']}), 200
 
 
-@app.route("/<film>", methods=["GET", "POST"])
-def reviews(film):
+@app.route("/film/<film_id>", methods=["GET", "POST"])
+def reviews(film_id):
     if request.method == "GET":
         data = request.get_json()
-        review = control.get_review_by_film(film)
+        review = control.get_review_by_film(film_id)
         return jsonify({"reviews": review})
     elif request.method == "POST":
         data = request.get_json()
 
 
-@app.route("/<user_id>", methods=["GET", "PUT"])
+@app.route("/user/<user_id>", methods=["GET", "PUT"])
 def my_page(user_id):
     if request.method == "GET":
         data = request.get_json()
