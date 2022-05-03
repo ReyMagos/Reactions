@@ -18,20 +18,16 @@ import axios from "axios";
 
 function loadFilms(inputText: string, updateDropdown: Function) {
   axios.post("/films", {text: inputText})
-    .then(response => { console.log(response.data); updateDropdown(response.data.films.map(film => [film.id, <p>{film.name}</p>])) })
+    .then(response => {
+      updateDropdown(response.data.films.map(film => {
+        return {id: film.id, value: <p>{film.name}</p>}
+      }))
+    })
     .catch(error => console.log(error))
 }
 
 function loadReviews(id: any, updateFilms: Function) {
-  axios.get(`/reviews/${id}`)
-    .then(response => {
-      updateFilms(
-        <FilmPreview>
-          {response.data.map((text, author) => <ReviewText text={text} author={author} />)}
-        </FilmPreview>
-      )
-    })
-    .catch(error => console.log(error))
+  updateFilms( <FilmPreview id={id} /> )
 }
 
 const Header = (props: { app: any }) => {
@@ -56,11 +52,13 @@ const Header = (props: { app: any }) => {
             const flag = active && items.length > 0
             return (
               <React.Fragment>
-                <TextInput variant="solid" className={ClassName.apply("w-full p-1").applyWhen("dock sh1", flag).asString()}
-                           placeholder="Search for films" onFocus={() => setActive(true)} onBlur={() => setActive(false)}
-                           onChange={(event: ChangeEvent<HTMLInputElement>) => loadFilms(event.target.value, updateItems)} />
+                <TextInput variant="solid"
+                           className={ClassName.apply("w-full p-1").applyWhen("dock sh1", flag).asString()}
+                           placeholder="Search for films" onFocus={() => setActive(true)}
+                           onBlur={() => setActive(false)}
+                           onChange={(event: ChangeEvent<HTMLInputElement>) => loadFilms(event.target.value, updateItems)}/>
                 <Dropdown className="sh1 transition-all max-h-[30vh] overflow-y-auto"
-                          active={flag} items={items} onSelect={id => loadReviews(id, props.app.updateFilms)} />
+                          active={flag} items={items} onSelect={id => loadReviews(id, (films: ReactNode) => {props.app.updateFilms(films)})}/>
               </React.Fragment>
             )
           }}
@@ -107,7 +105,7 @@ class App extends React.Component<any, any> {
   }
 
   setActiveModal(content: JSX.Element) {
-    this.setState({modal: content})
+    this.setState({ modal: content })
   }
 
   removePrevModal() {
@@ -115,22 +113,22 @@ class App extends React.Component<any, any> {
   }
 
   updateFilms(films: ReactNode) {
-    this.setState({
-      films: films
-    })
+    this.setState({ films: films })
   }
 
   render() {
     return (
       <React.Fragment>
-        <ModalWidget active={this.state.modal != null} close={() => {this.setActiveModal(null)}}>
+        <ModalWidget active={this.state.modal != null} close={() => {
+          this.setActiveModal(null)
+        }}>
           {this.state.modal}
         </ModalWidget>
         <Header app={this}/>
         <div className="flex flex-col items-center space-y-2">
-
+          {this.state.films}
         </div>
-        <Footer />
+        <Footer/>
       </React.Fragment>
     )
   }
