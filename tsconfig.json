@@ -9,7 +9,7 @@
 
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
-    // "noImplicitAny": true
+     "noImplicitAny": true
   },
   "exclude": [
     "node_modules"

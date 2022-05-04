@@ -46,10 +46,10 @@ def register_page():
         data = request.get_json()
         res = make_response("")
         if data['password'] != data['repeat_password']:
-            res.headers["cause"] = "unmathed_password"
+            res.headers["cause"] = "Mismatched passwords"
             return res, 401
         if control.get_user_by_name(data.get('username')):
-            res.headers["cause"] = "username_exists"
+            res.headers["cause"] = "Username exists"
             return res, 401
         res.set_cookie("is_authorized", str(True))
         res.set_cookie("username", str(data['username']))
@@ -84,12 +84,13 @@ def my_page(user_id):
 @app.route("/films", methods=["POST", "GET"])
 def films():
     data = request.get_json()
+    if data['text'] == "":
+        return jsonify({"films": []}), 200
     mas = search(data['text'])
     ans = []
     for i in range(len(mas)):
         ans.append({"name": mas[i][0], "id": mas[i][1]})
     return jsonify({"films": ans}), 200
-
 
 @app.route("/logout", methods=["POST", "GET"])
 def logout():

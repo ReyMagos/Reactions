@@ -1,5 +1,5 @@
 import React, {ReactNode} from "react";
-import axios from "axios";
+import axios, {AxiosError, AxiosResponse} from "axios";
 import Close from "./close.svg"
 import {useForm, FormProvider, useFormContext} from "react-hook-form";
 import Cookies from "universal-cookie";
@@ -103,7 +103,7 @@ export const Checkbox = (props: PCheckbox) => {
 
 interface PDropdown {
   active?: boolean
-  items?: Array<{id: any, value: JSX.Element}>
+  items?: Array<{id: any, value: ReactNode}>
   onSelect?: Function
   className?: string
 }
@@ -142,7 +142,9 @@ const FormInput = (props: any) => {
                     variant="float" {...restProps} />
 }
 
-export const Auth = (props: { className?: string, app: any }) => {
+export const Auth = (props: { className?: string, app: any, onSuccess: Function }) => {
+  const [failCause, setFailCause] = React.useState(null)
+
   type AuthFormData = {
     login: string
     password: string
@@ -150,29 +152,40 @@ export const Auth = (props: { className?: string, app: any }) => {
   const formMethods = useForm<AuthFormData>()
   const sendForm = formMethods.handleSubmit((data: AuthFormData) => {
     axios.post("/login", {...data})
-      .then((response: any) => console.log(response))
-      .catch((error: any) => console.log(error))
+      .then((response: AxiosResponse) => {
+        props.app.setActiveModal(null)
+        props.onSuccess()
+      })
+      .catch((error: AxiosError) => {
+        const response = error.response
+        if (response.status == 401) {
+          setFailCause("Wrong credentials")
+        } else {
+          console.log("Unexpected response: ", response)
+        }
+      })
   })
 
   return (
     <div className={props.className}>
       <FormProvider {...formMethods}>
         <form onSubmit={sendForm}>
-          <div>
+          <div className="flex justify-between items-center">
             <p className="text-lg">Sign in</p>
+            {failCause != null && <p className="pop sh text-sm text-red-500 p-0.5 rounded-sm">{failCause}</p>}
           </div>
           <div className="flex flex-col items-center space-y-1 mt-2 text-md text-black">
             <FormInput target="login" placeholder="Username"/>
             <FormInput target="password" placeholder="Password"/>
           </div>
           <div className="flex justify-between items-center mt-0.5">
-            <Checkbox className="text-xs space-x-0.5" text="Remember me"/>
+            <Checkbox target="remember" className="text-xs space-x-0.5" text="Remember me"/>
             <a className="text-xs">Forgot password?</a>
           </div>
           <div className="flex flex-col items-center space-y-1 mt-2">
             <button className="sh text-lg w-1/2 rounded-sm" type="submit">Enter</button>
             <a className="text-xs" onClick={() => {
-              props.app.setActiveModal(<Register app={props.app}/>)
+              props.app.setActiveModal(<Register app={props.app} onSuccess={props.onSuccess} />)
             }}>Don't have an account?</a>
           </div>
         </form>
@@ -181,7 +194,9 @@ export const Auth = (props: { className?: string, app: any }) => {
   )
 }
 
-export const Register = (props: { className?: string, app: any }) => {
+export const Register = (props: { className?: string, app: any, onSuccess: Function}) => {
+  const [failCause, setFailCause] = React.useState(null)
+
   type RegisterFormData = {
     username: string
     login: string
@@ -191,16 +206,27 @@ export const Register = (props: { className?: string, app: any }) => {
   const formMethods = useForm<RegisterFormData>()
   const sendForm = formMethods.handleSubmit((data: RegisterFormData) => {
     axios.post("/register", {...data})
-      .then((response: any) => console.log(response))
-      .catch((error: any) => console.log(error))
+      .then((response: AxiosResponse) => {
+        props.app.setActiveModal(null)
+        props.onSuccess()
+      })
+      .catch((error: AxiosError) => {
+        const response = error.response
+        if (response.status == 401) {
+          setFailCause(response.headers["cause"])
+        } else {
+          console.log("Unexpected response: ", response)
+        }
+      })
   })
 
   return (
     <div className={props.className}>
       <FormProvider {...formMethods}>
         <form onSubmit={sendForm}>
-          <div className="flex">
+          <div className="flex justify-between items-center">
             <p className="text-lg">Register</p>
+            {failCause != null && <p className="pop sh text-sm text-red-500 p-0.5 rounded-sm">{failCause}</p>}
           </div>
           <div className="flex flex-col items-center space-y-1 mt-2 text-md text-black">
             <FormInput target="username" placeholder="Username"/>
@@ -211,7 +237,7 @@ export const Register = (props: { className?: string, app: any }) => {
           <div className="flex flex-col items-center mt-2 space-y-1">
             <button className="sh text-lg w-1/2 rounded-sm" type="submit">Enter</button>
             <a className="text-xs" onClick={() => {
-              props.app.setActiveModal(<Auth app={props.app}/>)
+              props.app.setActiveModal(<Auth app={props.app} onSuccess={props.onSuccess} />)
             }}>Already have an account?</a>
           </div>
         </form>
@@ -230,7 +256,7 @@ export const ReviewText = (props: { text: string, author: string }) => {
 }
 
 
-export const FilmPreview = (props: { id: any }) => {
+export const FilmPreview = (props: { id: number }) => {
   const [isExpanded, expand] = React.useState(true)
   const [filmInfo, setFilmInfo] = React.useState({id: null, name: null, reviews: null})
   const reloadPreview = () => {
@@ -238,11 +264,16 @@ export const FilmPreview = (props: { id: any }) => {
   }
 
   if (filmInfo.id != props.id) {
+    type Review = {
+      text: string
+      author: string
+    }
     axios.get(`/reviews/${props.id}`)
       .then(response => {
         {
-          const reviews = []
-          response.data.reviews.map(review => reviews.push(<ReviewText text={review.text} author={review.author}/>))
+          const reviews: ReactNode[] = []
+          response.data.reviews.map((review: Review) =>
+            reviews.push(<ReviewText text={review.text} author={review.author}/>))
           setFilmInfo({id: props.id, name: response.data.name, reviews: reviews})
         }
       })
@@ -277,6 +308,7 @@ export const FilmPreview = (props: { id: any }) => {
               axios.post(`/reviews/${props.id}`, { text: textareaRef.current.value, author: cookies.get("username") })
                 .then(response => console.log(response))
                 .catch(error => console.log(error))
+              textareaRef.current.value = ""
               reloadPreview()
             }}>Send review</button>
           </div>
