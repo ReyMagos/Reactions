@@ -7,7 +7,7 @@ from backend.SearchFunc.Searcher import search
 from backend.content import Films
 
 control = Controller()
-template_dir = os.path.abspath('/Users/yrikk/PyCharmProjects//Reactions/dist')
+template_dir = os.path.abspath('/Users/Rey/Reactions/dist')
 app = Flask(__name__, template_folder=template_dir)
 
 

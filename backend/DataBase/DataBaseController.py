@@ -29,6 +29,7 @@ class Controller:
 
     def add_review(self, content, creator_username, film):
         review = Review(content=content, creator_username=creator_username, id_film=film)
+        user = self.get_user(creator_username)
         self.db_sess.add(review)
         self.db_sess.commit()
 
