@@ -4,6 +4,7 @@ from flask import Flask, jsonify, request, render_template, send_from_directory,
 
 from backend.DataBase.DataBaseController import Controller
 from backend.SearchFunc.Searcher import search
+from backend.content import Films
 
 control = Controller()
 template_dir = os.path.abspath('/Users/yrikk/PyCharmProjects//Reactions/dist')
@@ -26,7 +27,7 @@ def dist(filename):
 @app.route("/login", methods=["GET", "POST"])
 def login_page():
     data = request.get_json()
-    user = control.get_user_by_name(data.get('login'))
+    user = control.get_user_by_name(data['login'])
     res = make_response()
     if not user:
         return res, 401
@@ -47,7 +48,7 @@ def register_page():
         if data['password'] != data['repeat_password']:
             res.headers["cause"] = "unmathed_password"
             return res, 401
-        if control.get_user_by_name(data.get('username')):
+        if control.get_user_by_name(data['username']):
             res.headers["cause"] = "username_exists"
             return res, 401
         res.set_cookie("is_authorized", str(True))
@@ -56,17 +57,19 @@ def register_page():
         return res, 200
 
 
-@app.route("/reviews/<film>", methods=["GET", "POST", "PUT"])
+@app.route("/reviews/<film>", methods=["GET", "POST", "PUT", "DELETE"])
 def reviews(film):
     if request.method == "GET":
         data = request.get_json()
         review = control.get_review_by_film(film)
-        return jsonify({"reviews": review}), 200
+        return jsonify({"reviews": review, "name": Films.mas[int(film)]}), 200
     elif request.method == "POST":
         data = request.get_json()
-        control.add_review(data['content'], request.cookies.get("username"), film)
+        control.add_review(data['text'], data['author'], int(film))
         return jsonify({}), 200
     elif request.method == "PUT":
+        data = request.get_json()
+    elif request.method == "DELETE":
         data = request.get_json()
 
 
@@ -74,8 +77,6 @@ def reviews(film):
 def my_page(user_id):
     if request.method == "GET":
         data = request.get_json()
-        review = control.get_review(user_id)
-        return jsonify({"reviews": review})
     if request.method == "PUT":
         data = request.get_json()
 
