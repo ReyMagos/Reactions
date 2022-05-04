@@ -27,7 +27,7 @@ def dist(filename):
 @app.route("/login", methods=["GET", "POST"])
 def login_page():
     data = request.get_json()
-    user = control.get_user_by_name(data.get('login'))
+    user = control.get_user_by_name(data['login'])
     res = make_response()
     if not user:
         return res, 401
@@ -48,7 +48,7 @@ def register_page():
         if data['password'] != data['repeat_password']:
             res.headers["cause"] = "Mismatched passwords"
             return res, 401
-        if control.get_user_by_name(data.get('username')):
+        if control.get_user_by_name(data['username']):
             res.headers["cause"] = "Username exists"
             return res, 401
         res.set_cookie("is_authorized", str(True))
@@ -57,7 +57,7 @@ def register_page():
         return res, 200
 
 
-@app.route("/reviews/<film>", methods=["GET", "POST", "PUT"])
+@app.route("/reviews/<film>", methods=["GET", "POST", "PUT", "DELETE"])
 def reviews(film):
     if request.method == "GET":
         data = request.get_json()
@@ -69,14 +69,14 @@ def reviews(film):
         return jsonify({}), 200
     elif request.method == "PUT":
         data = request.get_json()
+    elif request.method == "DELETE":
+        data = request.get_json()
 
 
 @app.route("/my_page/<user_id>", methods=["GET", "PUT"])
 def my_page(user_id):
     if request.method == "GET":
         data = request.get_json()
-        review = control.get_review(user_id)
-        return jsonify({"reviews": review})
     if request.method == "PUT":
         data = request.get_json()
 
