@@ -60,7 +60,6 @@ def register_page():
 @app.route("/reviews/<film>", methods=["GET", "POST", "PUT", "DELETE"])
 def reviews(film):
     if request.method == "GET":
-        data = request.get_json()
         review = control.get_review_by_film(film)
         return jsonify({"reviews": review, "name": Films.mas[int(film)]}), 200
     elif request.method == "POST":
